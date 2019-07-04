@@ -4,13 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+    <style>
+        body {
+            text-align: center;
+            color: white;
+            background-color: violet;
+        }
+
+        #tetris{
+            border: .2em solid white;
+            height: 80vh;
+        }
+    </style>
     <title>Tetris</title>
 </head>
 <body>
-    <div id="score"></div>
-    <canvas id="tetris" width="240" height="400"></canvas>
-    
+    <div>
+        <div id="score"></div>
+        <canvas id="tetris" width="240" height="480"></canvas>
+    </div>
+    <div>
+        Next Piece: 
+        <canvas id="next-piece" width="125" height="125"
+    </div>
     <script src="tetris.js" type="text/javascript"></script>
 </body>
 </html>

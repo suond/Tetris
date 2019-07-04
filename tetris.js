@@ -1,10 +1,48 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
-//by 20
-context.scale(20,20)
+
+const nextPieceCanvas = document.getElementById('next-piece')
+const nextPieceContext = nextPieceCanvas.getContext('2d')
+nextPieceContext.fillStyle = 'black';
+nextPieceContext.fillRect(0,0, canvas.width, canvas.height);
 
 context.fillStyle = 'black';
 context.fillRect(0,0, canvas.width, canvas.height);
+
+const scaleamt = 24;
+//World Logic
+const world = createWorld(10,20);
+let nextPiece = null;
+function createWorld(width,height){
+    const matrix = []
+    for (let i = 0; i< height; i++){
+        //push new array width long fill all with 0
+        matrix.push(new Array(width).fill(0))
+    }
+    return matrix;
+}
+
+const colors = [null, 'red', 'blue', 'yellow','green', 'orange', 'purple', 'pink']
+const player = {
+    pos: {x:0, y:0},
+    matrix: null,
+    score: 0
+}
+
+var reqId = null;
+var isRunning = true;
+
+function reset(){
+    world.forEach(row => row.fill(0))
+    player.score = 0
+    updateScore();
+    nextPieceToShow()
+    playerReset();
+}
+
+function updateScore(){
+    document.getElementById("score").innerHTML = "score: " + player.score
+}
 
 function worldSweep(){
     let rowCount = 1
@@ -18,26 +56,54 @@ function worldSweep(){
         const row = world.splice(y,1)[0].fill(0);
         world.unshift(row);
         ++y;
-
+        
         player.score += rowCount * 10;
         rowCount *= 2
         updateScore(); 
     }
 }
 
-//t piece
-const matrix = [
-    [0,0,0],
-    [1,1,1],
-    [0,1,0]
-]
-
+//DRAW LOGIC
 function draw(){
     //like clearing the canvas
     context.fillStyle = 'black';
     context.fillRect(0,0, canvas.width, canvas.height);
     drawMatrix(world, {x:0, y: 0})
     drawMatrix(player.matrix, player.pos)
+    drawNextPiece()
+}
+
+
+function drawMatrix(matrix, offset) {
+    matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if(value !== 0) {
+                context.fillStyle = colors[value];
+                context.fillRect((x+offset.x) * scaleamt ,(y+offset.y) * scaleamt,1*scaleamt,1*scaleamt);
+                context.fillStyle = 'black'
+                context.strokeRect((x+offset.x) * scaleamt ,(y+offset.y) * scaleamt,1*scaleamt,1*scaleamt);
+                
+
+            }
+        })
+    });
+}
+
+function drawNextPiece(){
+    nextPieceContext.fillStyle = 'black'
+    nextPieceContext.fillRect(0,0, canvas.width, canvas.height);
+
+    nextPiece.forEach( (row, y) => {
+        row.forEach( (value, x) => {
+            if(value !== 0 ) {
+                nextPieceContext.fillStyle = colors[value]
+                nextPieceContext.fillRect((24*x + 25),(24*y+25), scaleamt, scaleamt)
+                nextPieceContext.fillStyle = 'black';
+                nextPieceContext.strokeRect((24*x +25),(24*y +25),scaleamt,scaleamt)
+            }
+        })
+    })
+    
 }
 
 function createPiece(type){
@@ -90,19 +156,9 @@ function createPiece(type){
     }
 }
 
-function createMatrix(width,height){
-    const matrix = []
-    for (let i = 0; i< height; i++){
-        //push new array width long fill all with 0
-        matrix.push(new Array(width).fill(0))
-    }
-    return matrix;
-}
-
 let lastTime = 0
 let dropCounter = 0
 let dropInterval = 1000;
-
 
 //continuously draw itself
 function update(time = 0) {
@@ -115,13 +171,32 @@ function update(time = 0) {
     }
 
     draw();
-    requestAnimationFrame(update)
+    reqId = requestAnimationFrame(update)
 }
 
 function changePlayerPos(coor, amt){
     player.pos[coor] += amt
     if (collide(world, player)) {
         player.pos[coor] -= amt;
+    }
+}
+
+function nextPieceToShow() {
+    const pieces = ['t','o','s','z','li','l','j']
+    let next1 = pieces[Math.floor(Math.random()*pieces.length)]
+    nextPiece = createPiece(next1);
+}
+
+function playerReset(){
+    
+    player.matrix = nextPiece;
+    nextPieceToShow();
+    player.pos.y = 0;
+    player.pos.x = Math.floor(world[0].length/2 ) - Math.floor(player.matrix[0].length /2)
+
+    if(collide(world, player)){
+        //game over
+        reset()
     }
 }
 
@@ -137,19 +212,7 @@ function playerDrop(){
     dropCounter = 0;
 }
 
-const colors = [null, 'red', 'blue', 'yellow','green', 'orange', 'purple', 'pink']
 
-function drawMatrix(matrix, offset) {
-    matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-            if(value !== 0) {
-                context.fillStyle = colors[value];
-                context.fillRect(x+offset.x,y+offset.y,1,1);
-                // context.strokeRect(x,y,1,1);
-            }
-        })
-    });
-}
 
 function playerRotate(direction){
     const originalPosX = player.pos.x;
@@ -190,40 +253,6 @@ function rotate(matrix, direction) {
     }
 }
 
-const world = createMatrix(12,20);
-
-const player = {
-    pos: {x:0, y:0},
-    matrix: null,
-    score: 0
-}
-
-function playerReset(){
-    const pieces = ['t','o','s','z','li','l','j']
-    let next1 = pieces[Math.floor(Math.random()*pieces.length)]
-    const nextPiece = createPiece(next1)
-    
-    player.matrix = nextPiece;
-    player.pos.y = 0;
-    player.pos.x = Math.floor(world[0].length/2 ) - Math.floor(player.matrix[0].length /2)
-
-    if(collide(world, player)){
-        //game over
-        reset()
-    }
-}
-
-function reset(){
-    world.forEach(row => row.fill(0))
-    player.score = 0
-    updateScore();
-    playerReset();
-}
-
-function updateScore(){
-    document.getElementById("score").innerHTML = player.score
-}
-
 function merge(world, player){
     player.matrix.forEach((row,y) => {
         row.forEach( (value, x) =>{
@@ -251,29 +280,48 @@ document.addEventListener('keydown', (e) =>{
     switch(e.keyCode){
         case 65:
         case 37:
-            changePlayerPos('x', -1)
+            if (isRunning){
+                changePlayerPos('x', -1)
+            }
             break;
         case 83:
         case 40:
-            playerDrop();
+            if (isRunning){
+                playerDrop();
+            }
             break;
         case 68:
         case 39:
-            changePlayerPos('x', 1)
+            if (isRunning){
+                changePlayerPos('x', 1)
+            }
             break;
         case 81: //q
             // console.log('rotate ccw')
-            playerRotate(-1)
+            if (isRunning) {
+                playerRotate(-1)
+            }
             break;
         case 69:
         case 38:
             // console.log('rotate cw');
-            playerRotate(1)
+            if (isRunning){
+                playerRotate(1)
+            }
             break;
+        case 80:
+            // console.log("pause")
+            if (isRunning) {
+                cancelAnimationFrame(reqId)
+                isRunning = false;
+            } else {
+                requestAnimationFrame(update)
+                isRunning = true;
+            }
         default:
             break;
     }
 });
-// playerReset();
+
 reset();
 update();
