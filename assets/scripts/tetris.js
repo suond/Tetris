@@ -1,13 +1,17 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
+context.fillStyle = 'black';
+context.fillRect(0,0, canvas.width, canvas.height);
 
 const nextPieceCanvas = document.getElementById('next-piece')
 const nextPieceContext = nextPieceCanvas.getContext('2d')
 nextPieceContext.fillStyle = 'black';
 nextPieceContext.fillRect(0,0, canvas.width, canvas.height);
 
-context.fillStyle = 'black';
-context.fillRect(0,0, canvas.width, canvas.height);
+const startBtn = document.getElementById("start-game-btn")
+startBtn.onclick = (e) =>{
+    start();
+}
 
 const scaleamt = 24;
 //World Logic
@@ -30,14 +34,16 @@ const player = {
 }
 
 var reqId = null;
-var isRunning = true;
+var isRunning = false;
 
 function reset(){
     world.forEach(row => row.fill(0))
     player.score = 0
     updateScore();
-    nextPieceToShow()
+    nextPieceToShow();
     playerReset();
+    player.pos.y =0;
+    isRunning = true;
 }
 
 function updateScore(){
@@ -196,7 +202,9 @@ function playerReset(){
 
     if(collide(world, player)){
         //game over
-        reset()
+        pause();
+        reset();
+        console.log("game over click play to start again")
     }
 }
 
@@ -211,8 +219,6 @@ function playerDrop(){
     }
     dropCounter = 0;
 }
-
-
 
 function playerRotate(direction){
     const originalPosX = player.pos.x;
@@ -312,8 +318,7 @@ document.addEventListener('keydown', (e) =>{
         case 80:
             // console.log("pause")
             if (isRunning) {
-                cancelAnimationFrame(reqId)
-                isRunning = false;
+                pause();
             } else {
                 requestAnimationFrame(update)
                 isRunning = true;
@@ -323,5 +328,13 @@ document.addEventListener('keydown', (e) =>{
     }
 });
 
-reset();
-update();
+function start() {
+    reset();
+    update();
+    isRunning = true;
+}
+
+function pause(){
+    cancelAnimationFrame(reqId);
+    isRunning = false;
+}
