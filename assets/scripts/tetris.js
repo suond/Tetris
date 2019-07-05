@@ -1,3 +1,4 @@
+//canvas setup and draw amount
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 context.fillStyle = 'black';
@@ -7,16 +8,27 @@ const nextPieceCanvas = document.getElementById('next-piece')
 const nextPieceContext = nextPieceCanvas.getContext('2d')
 nextPieceContext.fillStyle = 'black';
 nextPieceContext.fillRect(0,0, canvas.width, canvas.height);
+//block size
+const scaleamt = 24;
 
 const startBtn = document.getElementById("start-game-btn")
 startBtn.onclick = (e) =>{
     start();
 }
 
-const scaleamt = 24;
-//World Logic
+// Game world constants and setup
 const world = createWorld(10,20);
 let nextPiece = null;
+const colors = [null, 'red', 'blue', 'yellow','green', 'orange', 'purple', 'pink']
+const player = {
+    pos: {x:0, y:0},
+    matrix: null,
+    score: 0
+}
+var reqId = null;
+var isRunning = false;
+
+//
 function createWorld(width,height){
     const matrix = []
     for (let i = 0; i< height; i++){
@@ -26,15 +38,22 @@ function createWorld(width,height){
     return matrix;
 }
 
-const colors = [null, 'red', 'blue', 'yellow','green', 'orange', 'purple', 'pink']
-const player = {
-    pos: {x:0, y:0},
-    matrix: null,
-    score: 0
+
+
+// GAME START/PAUSE/STOP FUNCTIONS
+function start() {
+    reset();
+    update();
+    isRunning = true;
+    startBtn.disabled = true;
 }
 
-var reqId = null;
-var isRunning = false;
+function pause(){
+    cancelAnimationFrame(reqId);
+    isRunning = false;
+    startBtn.disabled = false;
+}
+
 
 function reset(){
     world.forEach(row => row.fill(0))
@@ -42,7 +61,8 @@ function reset(){
     updateScore();
     nextPieceToShow();
     playerReset();
-    player.pos.y =0;
+    player.pos.y = -1;
+    dropCounter = 1000
     isRunning = true;
 }
 
@@ -50,23 +70,41 @@ function updateScore(){
     document.getElementById("score").innerHTML = "score: " + player.score
 }
 
-function worldSweep(){
-    let rowCount = 1
-    outer: for (let y = world.length-1; y > 0; --y){
-        for (let x = 0; x< world[y].length; ++x) {
-            if (world[y][x] === 0) {
-                continue outer;
-            }
-        }
-        //getting here means the row is filled so you get rid of the row from the bottom and add it to the top
-        const row = world.splice(y,1)[0].fill(0);
-        world.unshift(row);
-        ++y;
-        
-        player.score += rowCount * 10;
-        rowCount *= 2
-        updateScore(); 
+function gameOver(){
+    if (world[0][4] !== 0 || world[0][5] !== 0 || world[0][6] !== 0 /* ||
+        world[1][4] !== 0 || world[1][5] !== 0 || world[1][6] !== 0 */) {
+          return true;
     }
+    return false; 
+  }
+  
+  function stop(){
+    //   cancelAnimationFrame(reqId);
+      isRunning = false;
+      startBtn.disabled = false;
+      cancelAnimationFrame(reqId);
+      gameOverModal = document.querySelector(".game-over-modal");
+      gameOverModal.classList.toggle("show-modal");
+      cancelAnimationFrame(reqId);
+  }
+//END OF GAME STOP START
+
+//UPDATE TIME VARIABLE
+let lastTime = 0
+let dropCounter = 0
+let dropInterval = 1000;
+//continuously draw itself
+function update(time = 0) {
+    const deltaTime = time - lastTime;
+    lastTime = time;
+    
+    dropCounter += deltaTime
+    if(dropCounter > dropInterval) {
+        playerDrop()
+    }
+
+    draw();
+    reqId = requestAnimationFrame(update)
 }
 
 //DRAW LOGIC
@@ -87,8 +125,7 @@ function drawMatrix(matrix, offset) {
                 context.fillStyle = colors[value];
                 context.fillRect((x+offset.x) * scaleamt ,(y+offset.y) * scaleamt,1*scaleamt,1*scaleamt);
                 context.fillStyle = 'black'
-                context.strokeRect((x+offset.x) * scaleamt ,(y+offset.y) * scaleamt,1*scaleamt,1*scaleamt);
-                
+                context.strokeRect((x+offset.x) * scaleamt ,(y+offset.y) * scaleamt,1*scaleamt,1*scaleamt);                
 
             }
         })
@@ -112,13 +149,64 @@ function drawNextPiece(){
     
 }
 
+// GAME LOGICS 
+function nextPieceToShow() {
+    const pieces = ['t','o','s','z','li','l','j']
+    let next1 = pieces[Math.floor(Math.random()*pieces.length)]
+    nextPiece = createPiece(next1);
+}
+
+function worldSweep(){
+    let rowCount = 1
+    outer: for (let y = world.length-1; y > 0; --y){
+        for (let x = 0; x< world[y].length; ++x) {
+            if (world[y][x] === 0) {
+                continue outer;
+            }
+        }
+        //getting here means the row is filled so you get rid of the row from the bottom and add it to the top
+        const row = world.splice(y,1)[0].fill(0);
+        world.unshift(row);
+        ++y;
+        
+        player.score += rowCount * 10;
+        rowCount *= 3
+        updateScore(); 
+    }
+}
+
+function merge(world, player){
+    player.matrix.forEach((row,y) => {
+        row.forEach( (value, x) =>{
+            if (value !== 0 ) {
+                world[y + player.pos.y][x + player.pos.x] = value;
+            }
+        })
+    })
+    
+}
+
+function collide(world, player) {
+    const [matrix, pos] = [player.matrix, player.pos]
+
+    for(let y = 0; y < matrix.length; ++y){
+        for(let x = 0; x < matrix[y].length; ++x) {
+            if(matrix[y][x] !== 0 && 
+                (world[ y+pos.y ] && world[y + pos.y][x + pos.x]) !== 0) {
+                    return true;
+                }
+        }
+    }
+    
+}
+
 function createPiece(type){
     switch(type) {
         case 't':
             return [
-                [0,0,0],
                 [1,1,1],
-                [0,1,0]
+                [0,1,0],
+                [0,0,0]
             ]
         
         case 'o':
@@ -162,24 +250,7 @@ function createPiece(type){
     }
 }
 
-let lastTime = 0
-let dropCounter = 0
-let dropInterval = 1000;
-
-//continuously draw itself
-function update(time = 0) {
-    const deltaTime = time - lastTime;
-    lastTime = time;
-    
-    dropCounter += deltaTime
-    if(dropCounter > dropInterval) {
-        playerDrop()
-    }
-
-    draw();
-    reqId = requestAnimationFrame(update)
-}
-
+//PLAYER LOGIC
 function changePlayerPos(coor, amt){
     player.pos[coor] += amt
     if (collide(world, player)) {
@@ -187,39 +258,18 @@ function changePlayerPos(coor, amt){
     }
 }
 
-function nextPieceToShow() {
-    const pieces = ['t','o','s','z','li','l','j']
-    let next1 = pieces[Math.floor(Math.random()*pieces.length)]
-    nextPiece = createPiece(next1);
-}
-
 function playerReset(){
+    if(gameOver()){
+        //game over
+        stop()
+        cancelAnimationFrame(reqId);
+    }
     
     player.matrix = nextPiece;
     nextPieceToShow();
     player.pos.y = 0;
     player.pos.x = Math.floor(world[0].length/2 ) - Math.floor(player.matrix[0].length /2)
 
-    if(gameOver()){
-        //game over
-        stop()
-    }
-}
-
-function gameOver(){
-  if (world[0][4] !== 0 || world[0][5] !== 0) {
-        return true;
-  }
-  return false; 
-}
-
-function stop(){
-    cancelAnimationFrame(reqId);
-    isRunning = false;
-    startBtn.disabled = false;
-    cancelAnimationFrame(reqId);
-    gameOverModal = document.querySelector(".game-over-modal");
-    gameOverModal.classList.toggle("show-modal");
 }
 
 function playerDrop(){
@@ -273,29 +323,6 @@ function rotate(matrix, direction) {
     }
 }
 
-function merge(world, player){
-    player.matrix.forEach((row,y) => {
-        row.forEach( (value, x) =>{
-            if (value !== 0 ) {
-                world[y + player.pos.y][x + player.pos.x] = value;
-            }
-        })
-    })
-}
-
-function collide(world, player) {
-    const [matrix, pos] = [player.matrix, player.pos]
-
-    for(let y = 0; y < matrix.length; ++y){
-        for(let x = 0; x < matrix[y].length; ++x) {
-            if(matrix[y][x] !== 0 && 
-                (world[ y+pos.y ] && world[y + pos.y][x + pos.x]) !== 0) {
-                    return true;
-                }
-        }
-    }
-}
-
 document.addEventListener('keydown', (e) =>{
     switch(e.keyCode){
         case 65:
@@ -335,7 +362,7 @@ document.addEventListener('keydown', (e) =>{
                 pause();
                 context.fillStyle = 'white'
                 context.font = "30px Arial"
-                context.fillText("Paused", canvas.width/2 - 30, 25);
+                context.fillText("Paused", canvas.width/2 - 40, 25);
             } else if(gameOver()){
                 return;
             } else {
@@ -348,15 +375,3 @@ document.addEventListener('keydown', (e) =>{
     }
 });
 
-function start() {
-    reset();
-    update();
-    isRunning = true;
-    startBtn.disabled = true;
-}
-
-function pause(){
-    cancelAnimationFrame(reqId);
-    isRunning = false;
-    startBtn.disabled = false;
-}
