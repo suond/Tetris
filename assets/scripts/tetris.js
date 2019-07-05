@@ -200,12 +200,26 @@ function playerReset(){
     player.pos.y = 0;
     player.pos.x = Math.floor(world[0].length/2 ) - Math.floor(player.matrix[0].length /2)
 
-    if(collide(world, player)){
+    if(gameOver()){
         //game over
-        pause();
-        reset();
-        console.log("game over click play to start again")
+        stop()
     }
+}
+
+function gameOver(){
+  if (world[0][4] !== 0 || world[0][5] !== 0) {
+        return true;
+  }
+  return false; 
+}
+
+function stop(){
+    cancelAnimationFrame(reqId);
+    isRunning = false;
+    startBtn.disabled = false;
+    cancelAnimationFrame(reqId);
+    gameOverModal = document.querySelector(".game-over-modal");
+    gameOverModal.classList.toggle("show-modal");
 }
 
 function playerDrop(){
@@ -319,9 +333,15 @@ document.addEventListener('keydown', (e) =>{
             // console.log("pause")
             if (isRunning) {
                 pause();
+                context.fillStyle = 'white'
+                context.font = "30px Arial"
+                context.fillText("Paused", canvas.width/2 - 30, 25);
+            } else if(gameOver()){
+                return;
             } else {
                 requestAnimationFrame(update)
                 isRunning = true;
+                startBtn.disabled = true;
             }
         default:
             break;
@@ -332,9 +352,11 @@ function start() {
     reset();
     update();
     isRunning = true;
+    startBtn.disabled = true;
 }
 
 function pause(){
     cancelAnimationFrame(reqId);
     isRunning = false;
+    startBtn.disabled = false;
 }
