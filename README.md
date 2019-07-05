@@ -101,6 +101,6 @@ function collide(world, player) {
 ## WireFrame
 
 * rectangle 10 square wide, 20 square height
-* box pixel is likely 20 x 20
-* about modal, and pause on side
+* box pixel is 24px
+* about modal, and pause as a keybind
 * github, linkedin
