@@ -118,6 +118,14 @@ body h2{
     font-size: 17px;
 }
 
+#pause-btn{
+    background-color: red;
+}
+#pause-btn:disabled{
+    cursor: none;
+    background-color: grey;
+}
+
 #start-game-btn:disabled {
     cursor: none;
     background-color: grey;

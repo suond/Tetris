@@ -16,6 +16,18 @@ startBtn.onclick = (e) =>{
     start();
 }
 
+const pauseBtn = document.getElementById("pause-btn")
+pauseBtn.disabled = true;
+pauseBtn.onclick = (e) => {
+    if (isRunning){
+        pause();
+        pauseBtn.innerHTML= "Resume"
+    } else {
+        resume();
+        pauseBtn.innerHTML = "Pause"
+    }
+}
+
 // Game world constants and setup
 const world = createWorld(10,20);
 let nextPiece = null;
@@ -46,12 +58,16 @@ function start() {
     update();
     isRunning = true;
     startBtn.disabled = true;
+    pauseBtn.disabled = false;
 }
 
 function pause(){
     cancelAnimationFrame(reqId);
     isRunning = false;
-    startBtn.disabled = false;
+    // startBtn.disabled = false;
+    context.fillStyle = 'white'
+    context.font = "30px Arial"
+    context.fillText("Paused", canvas.width/2 - 40, 25);
 }
 
 
@@ -85,7 +101,7 @@ function gameOver(){
       cancelAnimationFrame(reqId);
       gameOverModal = document.querySelector(".game-over-modal");
       gameOverModal.classList.toggle("show-modal");
-      cancelAnimationFrame(reqId);
+      pauseBtn.disabled = true;
   }
 //END OF GAME STOP START
 
@@ -360,18 +376,19 @@ document.addEventListener('keydown', (e) =>{
             // console.log("pause")
             if (isRunning) {
                 pause();
-                context.fillStyle = 'white'
-                context.font = "30px Arial"
-                context.fillText("Paused", canvas.width/2 - 40, 25);
+                
             } else if(gameOver()){
                 return;
             } else {
-                requestAnimationFrame(update)
-                isRunning = true;
-                startBtn.disabled = true;
+                resume()
             }
         default:
             break;
     }
 });
 
+function resume() {
+    requestAnimationFrame(update)
+    isRunning = true;
+    startBtn.disabled = true;
+}
