@@ -21,10 +21,10 @@ pauseBtn.disabled = true;
 pauseBtn.onclick = (e) => {
     if (isRunning){
         pause();
-        pauseBtn.innerHTML= "Resume"
+        
     } else {
         resume();
-        pauseBtn.innerHTML = "Pause"
+        
     }
 }
 
@@ -65,6 +65,7 @@ function pause(){
     cancelAnimationFrame(reqId);
     isRunning = false;
     // startBtn.disabled = false;
+    pauseBtn.innerHTML= "Resume"
     context.fillStyle = 'white'
     context.font = "30px Arial"
     context.fillText("Paused", canvas.width/2 - 40, 25);
@@ -118,9 +119,10 @@ function update(time = 0) {
     if(dropCounter > dropInterval) {
         playerDrop()
     }
-
-    draw();
-    reqId = requestAnimationFrame(update)
+    if (isRunning){
+        draw();
+        reqId = requestAnimationFrame(update)
+    }
 }
 
 //DRAW LOGIC
@@ -391,4 +393,5 @@ function resume() {
     requestAnimationFrame(update)
     isRunning = true;
     startBtn.disabled = true;
+    pauseBtn.innerHTML= "Pause"
 }
