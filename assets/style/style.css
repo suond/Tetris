@@ -121,12 +121,10 @@ body h2{
 #pause-btn{
     background-color: red;
 }
-#pause-btn:disabled{
-    cursor: none;
-    background-color: grey;
-}
-
-#start-game-btn:disabled {
-    cursor: none;
-    background-color: grey;
+    #pause-btn:disabled{
+        background-color: #cccccc;
+    }
+button:disabled{
+    cursor: not-allowed;
+    background-color: #cccccc;
 }
