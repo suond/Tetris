@@ -21,7 +21,17 @@
         <div class="game-over-modal ">
             <div class="game-over-modal-content">
                 <div>
-                    <span>Game over, press play to start again</span>
+                    <div class="submit-div">
+                        <span id="congrats-message">Congrats! You got the new high score!</span>
+                        <br>
+                        <span id="current-player-score-span">Your score: </span>
+                        <div class="mini-form">
+                            <input type="text" placeholder="enter in your name" id="player-name"/>
+                            <button id="submit-score-btn">Add My Score</button>
+                        </div>
+                    </div>
+                    <br>
+                    <span>Game over, press play to start again (click out if you don't wanna submit your score)</span>
                 </div>
             </div>
         </div>
@@ -30,6 +40,9 @@
         <div class="next-piece-div">
             <span>Next Piece </span>
             <canvas id="next-piece" width="125" height="125"></canvas>
+        </div>
+        <div id="high-score-div">
+            <span id="high-score">High Score: </span>
         </div>
         <div class="div-btn-container">
 
@@ -54,15 +67,17 @@
                 <div class="modal-content">
                     <span class="close-button">&times;</span>
                     <h1>Play Tetris?</h1>
-                    <p>Click the start button to play tetris</p>
-                    <h3>controls:</h3>
-                    <p>a/s/d/arrow keys to move, q/e/uparrow to rotate, p to pause</p>
+                    <p>Click the "Play" button to play Tetris</p>
+                    <h3>Controls:</h3>
+                    <p>A/S/D/arrow keys to move, Q/E/UpArrow to rotate, P to pause</p>
                 </div>
             </div>
 
         </div>
     </div>
-
+    <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase-database.js"></script>
+    <script src="assets/scripts/firebase.js" type="text/javascript"></script>
     <script src="assets/scripts/tetris.js" type="text/javascript"></script>
     <script src="assets/scripts/modal.js" type="text/javascript"></script>
 </body>

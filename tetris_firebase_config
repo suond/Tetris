@@ -1,0 +1,20 @@
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyBRxgosN3QCs5pd9iz8B0EDZ6arSFUYQic",
+    authDomain: "tetris-d3256.firebaseapp.com",
+    databaseURL: "https://tetris-d3256.firebaseio.com",
+    projectId: "tetris-d3256",
+    storageBucket: "",
+    messagingSenderId: "618878741823",
+    appId: "1:618878741823:web:bd21f21a6dfb480b"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>

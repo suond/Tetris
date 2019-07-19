@@ -1,5 +1,5 @@
     var modal = document.querySelector(".modal");
-    var gameOverModal = document.querySelector(".game-over-modal")
+    var gameOverModal = document.querySelector(".game-over-modal");
     var trigger = document.querySelector(".trigger");
     var closeButton = document.querySelector(".close-button");
     var modal_content = document.querySelector(".modal-content")

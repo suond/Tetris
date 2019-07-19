@@ -14,6 +14,17 @@ body h2{
     border: .2em solid white;
     height: 80vh;
 }
+#congrats-message {
+    visibility: hidden;
+}
+.mini-form {
+    padding: 5px;
+    margin-top: 1px; 
+}
+#player-name {
+    padding: 3px;
+    border-radius: 5px;
+}
 
 .modal, .game-over-modal {
     position: fixed;
@@ -37,6 +48,12 @@ body h2{
     width: 24rem;
     border-radius: 0.5rem;
     color: black;
+}
+
+#high-score-div {
+    display: flex;
+    margin-left: 10px;
+    font-size: 20px;
 }
 
 .game-over-modal-content{

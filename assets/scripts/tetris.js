@@ -50,7 +50,9 @@ function createWorld(width,height){
     return matrix;
 }
 
-
+setTimeout(() => {
+    getHighScore();
+}, 1500);
 
 // GAME START/PAUSE/STOP FUNCTIONS
 function start() {
@@ -81,6 +83,7 @@ function reset(){
     player.pos.y = -1;
     dropCounter = 1000
     isRunning = true;
+    document.getElementById("congrats-message").style.visibility = "hidden"
 }
 
 function updateScore(){
@@ -96,13 +99,16 @@ function gameOver(){
   }
   
   function stop(){
-    //   cancelAnimationFrame(reqId);
       isRunning = false;
       startBtn.disabled = false;
       cancelAnimationFrame(reqId);
       gameOverModal = document.querySelector(".game-over-modal");
       gameOverModal.classList.toggle("show-modal");
       pauseBtn.disabled = true;
+      document.querySelector("#current-player-score-span").innerHTML = `Your Score: ${player.score}`
+      if (newHighScore()){
+         handleNewHighScore()
+      }
   }
 //END OF GAME STOP START
 
@@ -395,3 +401,51 @@ function resume() {
     startBtn.disabled = true;
     pauseBtn.innerHTML= "Pause"
 }
+
+//firebase stuff
+var highscore = 0;
+function getHighScore(){
+    const highscorespan = document.getElementById("high-score")
+    let scores; 
+    window.ref.on('value', (snapshot)=> {
+        scores = snapshot.val()
+    })
+    if (scores) {
+        let keys = Object.keys(scores)
+        for (var i = 0; i < keys.length; i++) {
+            let curScore = scores[keys[i]].score
+            if (curScore > highscore) highscore = curScore;
+        }
+    }
+    highscorespan.innerHTML = `High Score: ${highscore}`
+}
+
+function newHighScore() {
+    
+    return player.score > highscore;
+}
+
+function handleNewHighScore() {
+     //handle high score logic
+     document.getElementById("congrats-message").style.visibility = "visible"
+     highscore = player.score;
+     document.getElementById("high-score").innerHTML = `High Score: ${highscore}`;
+}
+
+let scoreBtn = document.getElementById("submit-score-btn")
+scoreBtn.addEventListener("click", e => {
+    addScoreToDb()
+})
+function addScoreToDb() {
+    let name = document.getElementById("player-name").value;
+    if (!name.length) {
+        name = "Anon";
+    }
+    console.log(name)
+    let score = player.score;
+
+    window.submitScore(score, name);
+    document.querySelector(".game-over-modal").classList.toggle("show-modal");
+}
+
+
