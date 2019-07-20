@@ -12,41 +12,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
       };
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
-    //   console.log(firebase)
+    
 
        database = firebase.database();
        ref = database.ref('scores');
-       
-
-    ref.on('value', getData, errData);
+   
 })
 
-function getData(data) {
-    // console.log("calling this")
-
-    return data.val();
-    // let scores = data.val();
-    // let keys = Object.keys(data.val())
-    // for (var i = 0; i < keys.length; i++) {
-    //     // var k = keys[i]
-    //     console.log(scores[keys[i]].score)
-    //     console.log(scores[keys[i]].name)
-    // }
-
-}
-
-function errData(err) {
-    console.log(err)
-}
-
-  function submitScore(score, name) {
+export function submitScore(score, name) {
     let data = {
         name: name,
         score: score
     }
     ref.push(data);
 }
-window.database = database;
-window.submitScore = submitScore;
-window.ref = ref;
-// export  {ref, database, submitScore}
+export function getRef(){
+    return ref;
+}
+
+export default {submitScore, getRef}

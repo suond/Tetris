@@ -1,3 +1,14 @@
+import {getRef, submitScore} from './firebase.js';
+export default () => {
+    let ref;
+    setTimeout( e => {
+    ref = getRef();
+}, 100)
+
+setTimeout(() => {
+    getHighScore();
+}, 101);
+
 //canvas setup and draw amount
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
@@ -50,10 +61,6 @@ function createWorld(width,height){
     return matrix;
 }
 
-setTimeout(() => {
-    getHighScore();
-}, 1500);
-
 // GAME START/PAUSE/STOP FUNCTIONS
 function start() {
     reset();
@@ -93,28 +100,29 @@ function updateScore(){
 function gameOver(){
     if (world[0][4] !== 0 || world[0][5] !== 0 || world[0][6] !== 0 /* ||
         world[1][4] !== 0 || world[1][5] !== 0 || world[1][6] !== 0 */) {
-          return true;
+            return true;
+        }
+        return false; 
     }
-    return false; 
-  }
-  
-  function stop(){
-      isRunning = false;
-      startBtn.disabled = false;
-      cancelAnimationFrame(reqId);
-      gameOverModal = document.querySelector(".game-over-modal");
-      gameOverModal.classList.toggle("show-modal");
-      pauseBtn.disabled = true;
+    
+    function stop(){
+        let gameOverModal = document.querySelector(".game-over-modal");
+        isRunning = false;
+        startBtn.disabled = false;
+        cancelAnimationFrame(reqId);
+        gameOverModal = document.querySelector(".game-over-modal");
+        gameOverModal.classList.toggle("show-modal");
+        pauseBtn.disabled = true;
       document.querySelector("#current-player-score-span").innerHTML = `Your Score: ${player.score}`
       if (newHighScore()){
-         handleNewHighScore()
-      }
+          handleNewHighScore()
+        }
   }
-//END OF GAME STOP START
-
-//UPDATE TIME VARIABLE
-let lastTime = 0
-let dropCounter = 0
+  //END OF GAME STOP START
+  
+  //UPDATE TIME VARIABLE
+  let lastTime = 0
+  let dropCounter = 0
 let dropInterval = 1000;
 //continuously draw itself
 function update(time = 0) {
@@ -150,7 +158,7 @@ function drawMatrix(matrix, offset) {
                 context.fillRect((x+offset.x) * scaleamt ,(y+offset.y) * scaleamt,1*scaleamt,1*scaleamt);
                 context.fillStyle = 'black'
                 context.strokeRect((x+offset.x) * scaleamt ,(y+offset.y) * scaleamt,1*scaleamt,1*scaleamt);                
-
+                
             }
         })
     });
@@ -159,7 +167,7 @@ function drawMatrix(matrix, offset) {
 function drawNextPiece(){
     nextPieceContext.fillStyle = 'black'
     nextPieceContext.fillRect(0,0, canvas.width, canvas.height);
-
+    
     nextPiece.forEach( (row, y) => {
         row.forEach( (value, x) => {
             if(value !== 0 ) {
@@ -212,75 +220,75 @@ function merge(world, player){
 
 function collide(world, player) {
     const [matrix, pos] = [player.matrix, player.pos]
-
+    
     for(let y = 0; y < matrix.length; ++y){
         for(let x = 0; x < matrix[y].length; ++x) {
             if(matrix[y][x] !== 0 && 
                 (world[ y+pos.y ] && world[y + pos.y][x + pos.x]) !== 0) {
                     return true;
                 }
+            }
         }
+    
     }
     
-}
-
-function createPiece(type){
-    switch(type) {
-        case 't':
-            return [
-                [1,1,1],
-                [0,1,0],
-                [0,0,0]
-            ]
-        
+    function createPiece(type){
+        switch(type) {
+            case 't':
+                return [
+                    [1,1,1],
+                    [0,1,0],
+                    [0,0,0]
+                ]
+                
         case 'o':
             return [
                 [2,2],
                 [2,2]
             ]
-        case 's':
-            return [
-                [0,3,3],
-                [3,3,0],
-                [0,0,0]
-            ]
-        case 'z':
-            return [
-                [4,4,0],
-                [0,4,4],
-                [0,0,0]
-            ]
-        case 'li':
-            return [
+            case 's':
+                return [
+                    [0,3,3],
+                    [3,3,0],
+                    [0,0,0]
+                ]
+                case 'z':
+                    return [
+                        [4,4,0],
+                        [0,4,4],
+                        [0,0,0]
+                    ]
+                    case 'li':
+                        return [
                 [0,5,0,0],
                 [0,5,0,0],
                 [0,5,0,0],
                 [0,5,0,0]
             ]
         case 'l': 
-            return [
-                [0,6,0],
+        return [
+            [0,6,0],
                 [0,6,0],
                 [0,6,6]
             ]
-        case 'j':
-            return [
-                [0,7,0],
-                [0,7,0],
+            case 'j':
+                return [
+                    [0,7,0],
+                    [0,7,0],
                 [7,7,0]
             ]
-
-
+            
+            
+        }
     }
-}
-
-//PLAYER LOGIC
-function changePlayerPos(coor, amt){
-    player.pos[coor] += amt
-    if (collide(world, player)) {
-        player.pos[coor] -= amt;
+    
+    //PLAYER LOGIC
+    function changePlayerPos(coor, amt){
+        player.pos[coor] += amt
+        if (collide(world, player)) {
+            player.pos[coor] -= amt;
+        }
     }
-}
 
 function playerReset(){
     if(gameOver()){
@@ -293,7 +301,7 @@ function playerReset(){
     nextPieceToShow();
     player.pos.y = 0;
     player.pos.x = Math.floor(world[0].length/2 ) - Math.floor(player.matrix[0].length /2)
-
+    
 }
 
 function playerDrop(){
@@ -350,74 +358,77 @@ function rotate(matrix, direction) {
 document.addEventListener('keydown', (e) =>{
     switch(e.keyCode){
         case 65:
-        case 37:
-            if (isRunning){
-                changePlayerPos('x', -1)
-            }
-            break;
-        case 83:
-        case 40:
-            if (isRunning){
+            case 37:
+                if (isRunning){
+                    changePlayerPos('x', -1)
+                }
+                break;
+                case 83:
+                    case 40:
+                        if (isRunning){
                 playerDrop();
             }
             break;
-        case 68:
-        case 39:
-            if (isRunning){
-                changePlayerPos('x', 1)
-            }
-            break;
+            case 68:
+                case 39:
+                    if (isRunning){
+                        changePlayerPos('x', 1)
+                    }
+                    break;
         case 81: //q
-            // console.log('rotate ccw')
+        // console.log('rotate ccw')
             if (isRunning) {
                 playerRotate(-1)
             }
             break;
-        case 69:
-        case 38:
-            // console.log('rotate cw');
-            if (isRunning){
+            case 69:
+                case 38:
+                    // console.log('rotate cw');
+                    if (isRunning){
                 playerRotate(1)
             }
             break;
-        case 80:
-            // console.log("pause")
-            if (isRunning) {
-                pause();
-                
+            case 80:
+                // console.log("pause")
+                if (isRunning) {
+                    pause();
+                    
             } else if(gameOver()){
                 return;
             } else {
                 resume()
             }
-        default:
-            break;
-    }
-});
-
-function resume() {
-    requestAnimationFrame(update)
-    isRunning = true;
-    startBtn.disabled = true;
-    pauseBtn.innerHTML= "Pause"
-}
-
-//firebase stuff
-var highscore = 0;
-function getHighScore(){
-    const highscorespan = document.getElementById("high-score")
-    let scores; 
-    window.ref.on('value', (snapshot)=> {
-        scores = snapshot.val()
-    })
-    if (scores) {
-        let keys = Object.keys(scores)
-        for (var i = 0; i < keys.length; i++) {
-            let curScore = scores[keys[i]].score
-            if (curScore > highscore) highscore = curScore;
+            default:
+                break;
+            }
+        });
+        
+        function resume() {
+            requestAnimationFrame(update)
+            isRunning = true;
+            startBtn.disabled = true;
+            pauseBtn.innerHTML= "Pause"
         }
-    }
-    highscorespan.innerHTML = `High Score: ${highscore}`
+        
+        //firebase stuff
+        var highscore = 0;
+        function getHighScore(){
+            const highscorespan = document.getElementById("high-score")
+            let scores; 
+            ref.once('value').
+            then(function(data) {
+                scores = data.val()
+                if (scores) {
+                    let keys = Object.keys(scores)
+                    for (var i = 0; i < keys.length; i++) {
+                        let curScore = scores[keys[i]].score
+                        if (curScore > highscore) highscore = curScore;
+                    }
+                }
+                highscorespan.innerHTML = `High Score: ${highscore}`
+            });
+            
+            
 }
 
 function newHighScore() {
@@ -426,10 +437,10 @@ function newHighScore() {
 }
 
 function handleNewHighScore() {
-     //handle high score logic
-     document.getElementById("congrats-message").style.visibility = "visible"
-     highscore = player.score;
-     document.getElementById("high-score").innerHTML = `High Score: ${highscore}`;
+    //handle high score logic
+    document.getElementById("congrats-message").style.visibility = "visible"
+    highscore = player.score;
+    document.getElementById("high-score").innerHTML = `High Score: ${highscore}`;
 }
 
 let scoreBtn = document.getElementById("submit-score-btn")
@@ -441,11 +452,11 @@ function addScoreToDb() {
     if (!name.length) {
         name = "Anon";
     }
-    console.log(name)
+    
     let score = player.score;
-
-    window.submitScore(score, name);
+    
+    submitScore(score, name);
     document.querySelector(".game-over-modal").classList.toggle("show-modal");
 }
 
-
+} //end
