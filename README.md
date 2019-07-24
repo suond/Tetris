@@ -2,7 +2,13 @@
 
 Tetris is a game where you stack lines of block to form a line in order to obtain a high score.  Blocks are cleared when the stacked block form a horizontal line that takes up the full 10 space.  More points are given when multiple lines are cleared at once.
 
+![alt text](/assets/screenshots/sc_tetris1.1.png)
+
+
 [Try it here](https://suond.github.io/Tetris/ "Tetris")
+
+
+
 
 ## Techs used
 
@@ -62,6 +68,8 @@ while (collide(world, player)){
 
 * Figuring out the flow of the game - figuring out the flow of how the application was rather tricky.  Knowing which variable to enable and disable depending on the state was tricky.  Disabling the keybind wasn't possible, but using a variable to track the current state of the game did the same as disabling keybinds when required.  It was often possible to mess the state up by resetting mid-game or during a pause so I ultimately ended up allowing resetting only to occur after a gameover or while in the pause screen. Gameflow is pretty important and it's important to define the flow so you don't end up with bugs.
 
+![alt text](/assets/screenshots/sc_tetris.1.png)
+
 In the keybinds, multiples checks are needed to make sure keyevents aren't run when they should be.
 ```javascript
 case 80:
@@ -96,11 +104,9 @@ function collide(world, player) {
     
 }
 ```
+## HighScore
 
+* Implemented using Google Firebase to register a user's high score.
+* After completion, user will be able to enter in their score to enter into the database
 
-## WireFrame
-
-* rectangle 10 square wide, 20 square height
-* box pixel is 24px
-* about modal, and pause as a keybind
-* github, linkedin
+![alt](/assets/screenshots/sc_tetris2.1.png)
