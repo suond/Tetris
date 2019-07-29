@@ -1,11 +1,11 @@
-# Tetris
+# 4 Blocks
 
-Tetris is a game where you stack lines of block to form a line in order to obtain a high score.  Blocks are cleared when the stacked block form a horizontal line that takes up the full 10 space.  More points are given when multiple lines are cleared at once.
+4 Blocks is a game based on Tetris where you stack lines of block to form a line in order to obtain a high score.  Blocks are cleared when the stacked block form a horizontal line that takes up the full 10 space.  More points are given when multiple lines are cleared at once.
 
 ![alt text](/assets/screenshots/sc_tetris1.1.png)
 
 
-[Try it here](https://suond.github.io/Tetris/ "Tetris")
+[Try it here](https://suond.github.io/Tetris/ "4 Blocks")
 
 
 
@@ -15,6 +15,7 @@ Tetris is a game where you stack lines of block to form a line in order to obtai
 * HTML
 * CSS
 * Javascript
+* Webpack
 
 ## Features
 
